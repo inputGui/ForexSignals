@@ -34,7 +34,13 @@ def process_candles(candles_data):
     ])
     df["time"] = pd.to_datetime(df["time"])
     df.set_index("time", inplace=True)
-    logger.info(f"Processed {len(df)} candles into DataFrame")
+    
+    # Add percentage changes
+    df['pct_change'] = df['close'].pct_change()
+    
+    # Add log returns
+    df['log_return'] = np.log(df['close'] / df['close'].shift(1))
+    
     return df
 
 def prepare_data_for_model(df, sequence_length, train_split=0.8):
@@ -50,26 +56,24 @@ def prepare_data_for_model(df, sequence_length, train_split=0.8):
     tuple: (X_train, y_train, X_test, y_test, scaler)
     """
     # Ensure all required columns are present
-    required_columns = ['open', 'high', 'low', 'close', 'volume']
-    if not all(col in df.columns for col in required_columns):
-        logger.error("Missing required columns in DataFrame")
-        return None
-
-    # Normalize the data
+    features = ['open', 'high', 'low', 'close', 'volume', 'pct_change', 'log_return', 
+                'SMA_20', 'EMA_20', 'MACD', 'RSI', 'Stoch_K', 'BBands_Upper', 
+                'BBands_Lower', 'ATR', 'OBV']
+    
+    df = df.dropna()  # Drop rows with NaN values
+    
     scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(df[required_columns])
+    scaled_data = scaler.fit_transform(df[features])
 
     X, y = [], []
     for i in range(len(scaled_data) - sequence_length):
         X.append(scaled_data[i:(i + sequence_length)])
-        y.append(scaled_data[i + sequence_length, 3])  # Predicting the close price
+        y.append(scaled_data[i + sequence_length, features.index('close')])  # Predicting the close price
 
     X, y = np.array(X), np.array(y)
 
-    # Split the data into train and test sets
     train_size = int(len(X) * train_split)
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
-    logger.info(f"Prepared data: X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")
     return X_train, y_train, X_test, y_test, scaler

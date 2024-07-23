@@ -52,3 +52,9 @@ def get_account_summary():
     except requests.exceptions.RequestException as e:
         logger.error(f"Error fetching account summary: {e}")
         return None
+    
+def fetch_multiple_instruments(instruments, granularity, count):
+    data = {}
+    for instrument in instruments:
+        data[instrument] = fetch_candles(instrument, granularity, count)
+    return data
