@@ -2,16 +2,12 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 import torch
 
-def evaluate_model(model, test_loader):
+def evaluate_model(model, X_test, y_test):
     model.eval()
-    predictions = []
-    actuals = []
     with torch.no_grad():
-        for inputs, labels in test_loader:
-            outputs = model(inputs)
-            predictions.extend(outputs.numpy())
-            actuals.extend(labels.numpy())
-    
-    mse = mean_squared_error(actuals, predictions)
+        X_tensor = torch.FloatTensor(X_test).to(model.device)
+        predictions = model(X_tensor).cpu().numpy()
+
+    mse = mean_squared_error(y_test, predictions)
     rmse = np.sqrt(mse)
     return rmse

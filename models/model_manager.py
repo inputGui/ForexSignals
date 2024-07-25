@@ -39,14 +39,16 @@ class ModelManager:
         return datetime.now() - model_time > self.retrain_interval
 
     def _train_new_model(self, X, y):
+        print(f"X shape: {X.shape}, y shape: {y.shape}")
+
         # Split data into train and validation sets
         train_size = int(0.8 * len(X))
         X_train, X_val = X[:train_size], X[train_size:]
         y_train, y_val = y[:train_size], y[train_size:]
 
         # Create DataLoaders
-        train_dataset = TensorDataset(torch.FloatTensor(X_train), torch.FloatTensor(y_train))
-        val_dataset = TensorDataset(torch.FloatTensor(X_val), torch.FloatTensor(y_val))
+        train_dataset = TensorDataset(torch.FloatTensor(X_train), torch.FloatTensor(y_train).unsqueeze(1))
+        val_dataset = TensorDataset(torch.FloatTensor(X_val), torch.FloatTensor(y_val).unsqueeze(1))
         train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False)
 

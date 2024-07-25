@@ -19,7 +19,7 @@ class DataPipeline:
 
     def fetch_and_process_data(self):
         logger.info(f"Fetching data for {self.instrument}")
-        candles_data = fetch_candles(self.instrument, self.granularity, self.count)
+        candles_data = fetch_candles(self.granularity, self.count)
 
         if candles_data is None:
             logger.error("Failed to fetch candles data")
@@ -35,7 +35,15 @@ class DataPipeline:
 
     def prepare_data_for_model(self, df):
         logger.info("Preparing data for model")
-        features = df.columns.drop('time').tolist()
+
+        # Check if 'time' is in columns or index
+        if 'time' in df.columns:
+            features = df.columns.drop('time').tolist()
+        else:
+            features = df.columns.tolist()
+            logger.info("'time' column not found in DataFrame columns. Using all columns as features.")
+
+        logger.info(f"Features being used: {features}")
 
         scaled_data = self.scaler.fit_transform(df[features])
 

@@ -62,8 +62,13 @@ def prepare_data_for_model(df, sequence_length, train_split=0.8):
     
     df = df.dropna()  # Drop rows with NaN values
     
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
     scaled_data = scaler.fit_transform(df[features])
+
+    # Check for NaN or infinite values
+    if np.isnan(scaled_data).any() or np.isinf(scaled_data).any():
+        logger.error("NaN or infinite values found in scaled data")
+        return None, None, None, None, None
 
     X, y = [], []
     for i in range(len(scaled_data) - sequence_length):

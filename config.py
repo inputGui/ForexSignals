@@ -24,7 +24,7 @@ HEADERS = {
 INSTRUMENT = "GBP_USD"
 
 # Model Configuration
-INPUT_DIM = 5  # Number of features
+INPUT_DIM = 17  # Number of features
 HIDDEN_DIM = 64
 LAYER_DIM = 2
 OUTPUT_DIM = 1
@@ -32,8 +32,8 @@ SEQUENCE_LENGTH = 60  # Number of time steps to look back
 
 # Training Configuration
 BATCH_SIZE = 64
-LEARNING_RATE = 0.001
-NUM_EPOCHS = 100
+LEARNING_RATE = 0.0001  # Reduced learning rate
+NUM_EPOCHS = 100  # Increased number of epochs
 
 # Data Configuration
 GRANULARITY = "M15"  # 15-minute candles
